@@ -1,45 +1,31 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import { useFetch } from './hooks/useFetch';
 
 type User = {
   id: number,
-  title: string,
-  body: string,
+  name: string,
+  email: string,
 }
 
 function App() {
-  const [users, setUsers] = useState<User[]>([]);
+  const { data: users, isFetching, error } = useFetch<User[]>('https://jsonplaceholder.typicode.com/users/');
 
-  useEffect(() => {
-    fetch("https://jsonplaceholder.typicode.com/posts/")
-    .then(r => r.json())
-    .then(r => setUsers(r))
-    .catch(e => {
-      console.log('Ops! Deu erro...')
+  if (error !== null) {
+    return <h1>BAD REQUEST!</h1>
+  }
+
+  return (<div> 
+    { isFetching && <p>Carregando...</p> }
+    <h1>Lista de usuários:</h1>{
+    users?.map(user => {
+      return (
+      <div id="user-component">
+      <label>Id: {user.id}</label> |
+      <label> Name: {user.name}</label> |
+      <label> Email: {user.email}</label>
+      <hr/>
+      </div>)
     })
-  }, []);
-
-  return (
-    <div>
-    <p id="commit">
-    # Interface em React consumindo a API <br/>
-    # do <a href='https://jsonplaceholder.typicode.com'
-          target='_blank'>https://jsonplaceholder.typicode.com</a>
-    </p><br/>
-    <h1>Users:</h1><br/>
-    {
-      users.map(user => {
-        return (
-          <div id="user-component">
-            <p id="id"><strong>Id:</strong> {user.id}</p>
-            <p id="title"><strong>Titulo:</strong> {user.title}</p>
-            <p id="body"><strong>Body:</strong> {user.body}</p><br/>
-          </div>
-        )
-      })
-    }
-    </div>
-  )
+  }</div>)
 }
 
 export default App
